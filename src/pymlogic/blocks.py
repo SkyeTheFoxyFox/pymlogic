@@ -52,7 +52,8 @@ class Processor(Block):
     LINK_NAME = "processor"
     def __init__(self, code: str, links: list[[tuple[int, int], Block]] = []):
         super().__init__()
-        import interpreter, parser
+        import pymlogic.interpreter as interpreter
+        import pymlogic.parser as parser
         self.interpreter = interpreter.Interpreter(parser.parse(code))
         self.interpreter.proc = self
         self.to_be_linked = links
