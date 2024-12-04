@@ -1,37 +1,3 @@
-Content = {
-    "copper": None,
-    "lead": None,
-    "metaglass": None,
-    "graphite": None,
-    "sand": None,
-    "coal": None,
-    "titanium": None,
-    "thorium": None,
-    "scrap": None,
-    "silicon": None,
-    "plastanium": None,
-    "phase-fabric": None,
-    "surge-alloy": None,
-    "spore-pod": None,
-    "blast-compound": None,
-    "pyratite": None,
-    "beryllium": None,
-    "tungsten": None,
-    "oxide": None,
-    "carbide": None,
-
-    "water": None,
-    "slag": None,
-    "oil": None,
-    "cryofluid": None,
-    "neoplasm": None,
-    "arkycite": None,
-    "ozone": None,
-    "hydrogen": None,
-    "nitrogen": None,
-    "cyanogen": None,
-}
-
 def attr_get(attr: str):
     def getter(obj):
         try:

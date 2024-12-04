@@ -1,11 +1,12 @@
 class Block:
     LINK_NAME = "block"
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.x = None
+        self.y = None
+        self.environment = None
 
     def _add_env(self, env):
-        pass
+        self.environment = env
 
     def __repr__(self):
         return "block"
@@ -13,6 +14,7 @@ class Block:
 class Switch(Block):
     LINK_NAME = "switch"
     def __init__(self):
+        super().__init__()
         self.enabled = True
 
     def __repr__(self):
@@ -21,6 +23,7 @@ class Switch(Block):
 class Message(Block):
     LINK_NAME = "message"
     def __init__(self):
+        super().__init__()
         self.message = ""
 
     def __repr__(self):
@@ -29,6 +32,7 @@ class Message(Block):
 class Display(Block):
     LINK_NAME = "display"
     def __init__(self):
+        super().__init__()
         self.draw_buffer = []
 
     def __repr__(self):
@@ -37,6 +41,7 @@ class Display(Block):
 class MemoryCell(Block):
     LINK_NAME = "cell"
     def __init__(self, size: int = 64):
+        super().__init__()
         self.memory_size = size
         self.memory: list[float] = [0.0 for _ in range(size)]
 
@@ -46,6 +51,7 @@ class MemoryCell(Block):
 class Processor(Block):
     LINK_NAME = "processor"
     def __init__(self, code: str, links: list[[tuple[int, int], Block]] = []):
+        super().__init__()
         import interpreter, parser
         self.interpreter = interpreter.Interpreter(parser.parse(code))
         self.interpreter.proc = self
@@ -55,6 +61,7 @@ class Processor(Block):
         return "processor"
 
     def _add_env(self, env):
+        super()._add_env(env)
         self.interpreter.environment = env
         env.procs.append(self.interpreter)
         for link in self.to_be_linked:

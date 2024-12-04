@@ -1,4 +1,4 @@
-import variables, math, random, re, time, blocks
+import variables, math, random, re, time, blocks, draw_call
 
 class Instruction:
         def __init__(self):
@@ -57,6 +57,98 @@ class I_Write(Instruction):
         if isinstance(cell, blocks.MemoryCell) and int(index) in range(0, cell.memory_size):
             cell.memory[int(index)] = value
 
+class I_Draw(Instruction):
+    def __init__(self, command, arg1, arg2, arg3, arg4, arg5, arg6):
+        self.command = default(command, "clear") #draw clear 0 0 0 0 0 0
+        self.arg1 = default_type(arg1, "0")
+        self.arg2 = default_type(arg2, "0")
+        self.arg3 = default_type(arg3, "0")
+        self.arg4 = default_type(arg4, "0")
+        self.arg5 = default_type(arg5, "0")
+        self.arg6 = default_type(arg6, "0")
+
+    def new(args: list[str], **kwargs):
+        return I_Draw(get_index(args, 0), get_index_type(args, 1), get_index_type(args, 2), get_index_type(args, 3), get_index_type(args, 4), get_index_type(args, 5), get_index_type(args, 6))
+        
+    def execute(self, interpreter):
+        #if command in ["clear", "color", "col", "stroke", "line", "rect", "lineRect", "poly", "linePoly", "triangle", "image", "print", "translate", "scale", "rotate", "reset"]
+        arg1 = self.arg1.get_coerced(interpreter)
+        arg2 = self.arg2.get_coerced(interpreter)
+        arg3 = self.arg3.get_coerced(interpreter)
+        arg4 = self.arg4.get_coerced(interpreter)
+        arg5 = self.arg5.get_coerced(interpreter)
+        arg6 = self.arg6.get_coerced(interpreter)
+
+        match self.command:
+            case "clear":
+                r = max(0, min(255, int(arg1)))
+                g = max(0, min(255, int(arg2)))
+                b = max(0, min(255, int(arg3)))
+                draw = draw_call.Clear((r, g, b, 255))
+
+            case "color":
+                r = max(0, min(255, int(arg1)))
+                g = max(0, min(255, int(arg2)))
+                b = max(0, min(255, int(arg3)))
+                a = max(0, min(255, int(arg4)))
+                draw = draw_call.Color((r, g, b, a))
+            
+            case "col":
+                r, g, b, a = variables.unpack_color(arg1)
+                draw = draw_call.Color((r, g, b, a))
+
+            case "stroke":
+                draw = draw_call.Stroke(arg1)
+
+            case "line":
+                draw = draw_call.Line((arg1, arg2), (arg3, arg4))
+
+            case "rect":
+                draw = draw_call.Rect((arg1, arg2), (arg3, arg4))
+
+            case "lineRect":
+                draw = draw_call.LineRect((arg1, arg2), (arg3, arg4))
+
+            case "poly":
+                draw = draw_call.Poly((arg1, arg2), int(arg3), arg4, arg5)
+
+            case "linePoly":
+                draw = draw_call.LinePoly((arg1, arg2), int(arg3), arg4, arg5)
+
+            case "triangle":
+                draw = draw_call.Triangle((arg1, arg2), (arg3, arg4), (arg5, arg6))
+
+            case "image":
+                pass
+
+            case "print":
+                if isinstance(self.arg3, variables.Variable) and self.arg3.var_name in ["center", "top", "bottom", "left", "right", "topLeft", "topRight", "bottomLeft", "bottomRight"]:
+                    align = self.arg3.var_name
+                else:
+                    align = "bottomLeft"
+
+                draw = draw_call.Print((arg1, arg2), interpreter.print_buffer, align)
+                interpreter.print_buffer = ""
+
+            case "translate":
+                draw = draw_call.Translate((arg1, arg2))
+
+            case "scale":
+                draw = draw_call.Scale((arg1, arg2))
+
+            case "rotate":
+                draw = draw_call.Rotate(arg3)
+
+            case "reset":
+                draw = draw_call.Reset()
+
+            case _:
+                r = max(0, min(255, int(arg1)))
+                g = max(0, min(255, int(arg2)))
+                b = max(0, min(255, int(arg3)))
+                draw = draw_call.Clear((r, g, b, 255))
+        interpreter.draw_buffer.append(draw)
+
 class I_Print(Instruction):
     def __init__(self, text):
         self.text = default_type(text, '"frog"')
@@ -73,7 +165,42 @@ class I_Print(Instruction):
         else:
             interpreter.print_buffer += str(value).replace(r"\n", "\n")
 
+class I_Format(Instruction):
+    def __init__(self, text):
+        self.text = default_type(text, '"frog"')
+
+    def new(args: list[str], **kwargs):
+        return I_Format(get_index_type(args, 0))
+
+    def execute(self, interpreter):
+        value = self.text.get_value(interpreter)
+        if isinstance(value, float):
+            text = f"{value:.4f}".rstrip("0").rstrip(".")
+        elif value is None:
+            text = "null"
+        else:
+            text = str(value).replace(r"\n", "\n")
+
+        for i in range(0,10):
+            if re.search(r"\{" + str(i) + r"\}", interpreter.print_buffer):
+                interpreter.print_buffer = re.sub(r"\{" + str(i) + r"\}", text, interpreter.print_buffer, 1)
+                break
+            
+
 #Block Control
+class I_Drawflush(Instruction):
+    def __init__(self, display):
+        self.display = default_type(display, "display1")
+
+    def new(args: list[str], **kwargs):
+        return I_Drawflush(get_index_type(args, 0))
+
+    def execute(self, interpreter):
+        display = self.display.get_value(interpreter)
+        if isinstance(display, blocks.Display):
+            display.draw_buffer.extend(interpreter.draw_buffer)
+        interpreter.draw_buffer = []
+
 class I_Printflush(Instruction):
     def __init__(self, message):
         self.message = default_type(message, "message1")
@@ -371,8 +498,11 @@ class I_Setrate(Instruction):
 INSTRUCTION_LOOKUP = {
     'read': I_Read,
     'write': I_Write,
+    'draw': I_Draw,
     'print': I_Print,
+    'format': I_Format,
     'printflush': I_Printflush,
+    'drawflush': I_Drawflush,
     'getlink': I_Getlink,
     'control': I_Control,
     'sensor': I_Sensor,

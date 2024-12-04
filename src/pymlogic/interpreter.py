@@ -47,7 +47,10 @@ class Interpreter:
         if isinstance(link, tuple):
             link_pos = link
         elif isinstance(link, blocks.Block):
-            link_pos = (link.x, link.y)
+            if link.environment is self.environment:
+                link_pos = (link.x, link.y)
+            else:
+                raise Exception("Blocks must be in the same environment to link")
         else:
             raise Exception("Unlinkable object")
         if link_pos not in self.links:

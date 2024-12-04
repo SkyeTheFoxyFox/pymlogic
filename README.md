@@ -34,6 +34,30 @@
 
 #and finally print the contents of the message block
 print(message.message)
- ```
+```
 
- 
+## State of development
+
+Implemented instructions:
+ - `read`
+ - `write`
+ - `draw`
+   - excluding `draw image`
+ - `print`
+ - `format`
+ - `printflush`
+ - `drawflush`
+ - `getlink`
+ - `control`
+   - only `control enabled`
+ - `sensor`
+   - only `@x`, `@y`, `@enabled`
+ - `set`
+ - `op`
+   - excluding `op noise`
+ - `packcolor`
+ - `wait`
+ - `stop`
+ - `end`
+ - `jump`
+ - `setrate`

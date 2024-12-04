@@ -36,3 +36,6 @@ class Env: # a simple environment class that defines just the basic logic blocks
             return self.blocks[pos]
         except KeyError:
             return None
+
+    def __repr__(self):
+        return f"Environment(blocks = [{", ".join(self.blocks)}])"
