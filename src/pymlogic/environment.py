@@ -1,4 +1,9 @@
-import interpreter, instructions, variables, parser, time, blocks
+import time
+import pymlogic.interpreter as interpreter
+import pymlogic.instructions as instructions
+import pymlogic.variables as variables
+import pymlogic.parser as parser 
+import pymlogic.blocks as blocks
 
 class FullEnv: # a future class for a more feature rich environment
     pass

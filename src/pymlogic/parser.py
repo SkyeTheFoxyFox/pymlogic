@@ -1,4 +1,5 @@
-import instructions, re
+import re
+import pymlogic.instructions as instructions
 
 def parse(code: str) -> list[instructions.Instruction]:
     lines = re.findall(r"\s*(?:(?:#.*?)|([^;\n]+?)\s*(?:#.*)?)(?:\n|;|$)", code)

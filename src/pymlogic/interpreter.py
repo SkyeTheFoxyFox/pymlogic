@@ -1,5 +1,7 @@
-import variables, time, blocks
+import time
 from collections import OrderedDict
+import pymlogic.variables as variables
+import pymlogic.blocks as blocks
 
 class Interpreter:
     def __init__(self, insts):

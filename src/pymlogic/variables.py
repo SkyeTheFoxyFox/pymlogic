@@ -1,4 +1,6 @@
-import re, struct, time, blocks, sensable
+import re, struct, time
+import pymlogic.blocks as blocks
+import pymlogic.sensable as sensable
 
 class Type:
     def get_value(self, interpreter):

@@ -1,4 +1,7 @@
-import variables, math, random, re, time, blocks, draw_call
+import math, random, re, time
+import pymlogic.variables as variables
+import pymlogic.blocks as blocks
+import pymlogic.draw_call as blocks
 
 class Instruction:
         def __init__(self):
